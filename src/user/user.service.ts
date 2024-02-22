@@ -17,6 +17,7 @@ import {
 } from './interface/service.interface';
 import { LoginDto } from 'src/auth/dto/Login.dto';
 import { JwtPayloadInterface } from 'src/auth/interface';
+import { UpdateAvatarDto } from './dto/updateAvatar.dto';
 
 @Injectable()
 export class UserService implements UserServiceInterface {
@@ -146,6 +147,30 @@ export class UserService implements UserServiceInterface {
     }
 
     this.message.setMessage(`Berhasil menghapus data user ${data.name}`);
+  }
+
+  async updateAvatar(
+    id: string,
+    updateAvatarDto: UpdateAvatarDto,
+  ): Promise<User> {
+    const result = await this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        avatar: updateAvatarDto.avatar,
+        updatedAt: this.time.getTimeZone(),
+      },
+    });
+
+    if (!result) {
+      throw new NotFoundException(
+        'Gagal memperbarui avatar, user tidak ditemukan',
+      );
+    }
+
+    this.message.setMessage('Berhasil Update Avatar');
+    return result;
   }
 
   async validateCredentials(loginDto: LoginDto): Promise<JwtPayloadInterface> {
