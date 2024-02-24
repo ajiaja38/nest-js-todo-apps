@@ -10,6 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { TimezoneService } from 'src/timezone/timezone.service';
 import { UuidService } from 'src/uuid/uuid.service';
 import { CreateTodoDto } from './dto/createTodo.dto';
+import { UpdateTodoDto } from './dto/updateTodoDto';
 
 @Injectable()
 export class TodoService {
@@ -45,11 +46,34 @@ export class TodoService {
   }
 
   async getAllTodo(): Promise<any> {
-    const result = await this.prisma.$queryRaw`
-      SELECT t.title, t.content, t.image, t.status, a.name
+    const result: any[] = await this.prisma.$queryRaw`
+      SELECT t.id, t.title, t.content, t.image, t.status, a.name as author
       FROM "Todo" as t
       INNER JOIN "User" as a ON t.author_id = a.id;
     `;
+
+    if (result.length) {
+      this.message.setMessage('Berhasil memuat list todo');
+    } else {
+      this.message.setMessage('Belum ada todo yang di inputkan');
+    }
+
+    return result;
+  }
+
+  async getAllTodoByAuthor(author_id: string): Promise<any> {
+    const result: any[] = await this.prisma.$queryRaw`
+      SELECT t.id, t.title, t.content, t.image, t.status, a.name as author
+      FROM "Todo" as t
+      INNER JOIN "User" as a ON t.author_id = a.id
+      WHERE t.author_id = ${author_id};
+    `;
+
+    if (result.length) {
+      this.message.setMessage('Berhasil memuat list todo');
+    } else {
+      this.message.setMessage('Belum ada todo yang di inputkan');
+    }
 
     return result;
   }
@@ -66,6 +90,27 @@ export class TodoService {
     }
 
     this.message.setMessage('Berhasil mendapatkan todo');
+    return result;
+  }
+
+  async updateTodoDto(id: string, updateTodoDto: UpdateTodoDto): Promise<Todo> {
+    const isExist = await this.prisma.todo.findUnique({ where: { id } });
+
+    if (!isExist) throw new NotFoundException('Todo tidak ditemukan');
+
+    const result = await this.prisma.todo.update({
+      where: {
+        id,
+      },
+      data: {
+        ...updateTodoDto,
+        updatedAt: this.time.getTimeZone(),
+      },
+    });
+
+    if (!result) throw new BadRequestException('Gagal Update todo');
+    this.message.setMessage('Berhasil Update Todo');
+
     return result;
   }
 
