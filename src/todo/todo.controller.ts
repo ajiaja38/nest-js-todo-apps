@@ -13,8 +13,8 @@ import { JwtAuthGuard } from 'src/utils/guard/auth.guard';
 import { CreateTodoDto } from './dto/createTodo.dto';
 import { Todo } from '@prisma/client';
 import { JwtPayloadInterface } from 'src/auth/interface';
-import { User } from 'src/utils/decorator/User.decorator';
 import { UpdateTodoDto } from './dto/updateTodoDto';
+import { UserDecorator } from 'src/utils/decorator/User.decorator';
 
 @Controller('todo')
 @UseGuards(JwtAuthGuard)
@@ -24,7 +24,7 @@ export class TodoController {
   @Post()
   async createTodoHandler(
     @Body() createTodoDto: CreateTodoDto,
-    @User() user: JwtPayloadInterface,
+    @UserDecorator() user: JwtPayloadInterface,
   ): Promise<Todo> {
     return await this.todoService.createTodo(user.id, createTodoDto);
   }
@@ -36,8 +36,9 @@ export class TodoController {
 
   @Get('all-by-author')
   async getAllTodoByAuthorHandler(
-    @User() user: JwtPayloadInterface,
+    @UserDecorator() user: JwtPayloadInterface,
   ): Promise<Todo[]> {
+    console.log(user);
     return await this.todoService.getAllTodoByAuthor(user.id);
   }
 
@@ -56,7 +57,7 @@ export class TodoController {
 
   @Delete(':id')
   async deleteTodoHandler(
-    @User() user: JwtPayloadInterface,
+    @UserDecorator() user: JwtPayloadInterface,
     @Param('id') id: string,
   ): Promise<void> {
     await this.todoService.deleteToto(user.id, id);

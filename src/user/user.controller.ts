@@ -17,6 +17,8 @@ import { getAllUser } from './interface/service.interface';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { JwtAuthGuard } from 'src/utils/guard/auth.guard';
 import { UpdateAvatarDto } from './dto/updateAvatar.dto';
+import { UserDecorator } from 'src/utils/decorator/User.decorator';
+import { JwtPayloadInterface } from 'src/auth/interface';
 
 @Controller('user')
 export class UserController {
@@ -40,6 +42,14 @@ export class UserController {
   @Get(':id')
   async getUserByIdHandler(@Param('id') id: string): Promise<User> {
     return await this.userService.getById(id);
+  }
+
+  @Get('logged/in')
+  @UseGuards(JwtAuthGuard)
+  async getUserLogged(
+    @UserDecorator() user: JwtPayloadInterface,
+  ): Promise<User> {
+    return await this.userService.getById(user.id);
   }
 
   @Put(':id')

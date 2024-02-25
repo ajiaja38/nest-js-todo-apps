@@ -97,9 +97,6 @@ export class UserService implements UserServiceInterface {
       where: {
         id,
       },
-      include: {
-        todo: true,
-      },
     });
 
     if (!result) {
@@ -187,7 +184,7 @@ export class UserService implements UserServiceInterface {
     const isMatch = await bcrypt.compare(loginDto.password, user.password);
 
     if (!isMatch) {
-      throw new BadRequestException('Maaf Password yang abda masukkan salah!');
+      throw new BadRequestException('Maaf Password yang anda masukkan salah!');
     }
 
     return {
