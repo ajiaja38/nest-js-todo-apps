@@ -38,7 +38,6 @@ export class TodoController {
   async getAllTodoByAuthorHandler(
     @UserDecorator() user: JwtPayloadInterface,
   ): Promise<Todo[]> {
-    console.log(user);
     return await this.todoService.getAllTodoByAuthor(user.id);
   }
 

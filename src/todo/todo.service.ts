@@ -46,11 +46,7 @@ export class TodoService {
   }
 
   async getAllTodo(): Promise<any> {
-    const result: any[] = await this.prisma.$queryRaw`
-      SELECT t.id, t.title, t.content, t.image, t.status, a.name as author
-      FROM "Todo" as t
-      INNER JOIN "User" as a ON t.author_id = a.id;
-    `;
+    const result: any[] = await this.prisma.todo.findMany();
 
     if (result.length) {
       this.message.setMessage('Berhasil memuat list todo');
@@ -62,12 +58,18 @@ export class TodoService {
   }
 
   async getAllTodoByAuthor(author_id: string): Promise<any> {
-    const result: any[] = await this.prisma.$queryRaw`
-      SELECT t.id, t.title, t.content, t.image, t.status, a.name as author
-      FROM "Todo" as t
-      INNER JOIN "User" as a ON t.author_id = a.id
-      WHERE t.author_id = ${author_id};
-    `;
+    const result: any[] = await this.prisma.todo.findMany({
+      where: {
+        author_id,
+      },
+      include: {
+        author: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
 
     if (result.length) {
       this.message.setMessage('Berhasil memuat list todo');
@@ -82,6 +84,9 @@ export class TodoService {
     const result = await this.prisma.todo.findUnique({
       where: {
         id,
+      },
+      include: {
+        author: true,
       },
     });
 
