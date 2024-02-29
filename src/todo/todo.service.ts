@@ -70,6 +70,9 @@ export class TodoService {
           },
         },
       },
+      orderBy: {
+        updatedAt: 'desc',
+      },
     });
 
     if (result.length) {
