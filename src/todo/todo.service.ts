@@ -10,7 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { TimezoneService } from 'src/timezone/timezone.service';
 import { UuidService } from 'src/uuid/uuid.service';
 import { CreateTodoDto } from './dto/createTodo.dto';
-import { UpdateTodoDto } from './dto/updateTodoDto';
+import { UpdateStatusTodoDto, UpdateTodoDto } from './dto/updateTodoDto';
 
 @Injectable()
 export class TodoService {
@@ -57,10 +57,11 @@ export class TodoService {
     return result;
   }
 
-  async getAllTodoByAuthor(author_id: string): Promise<any> {
+  async getAllTodoByAuthor(author_id: string, isActive: boolean): Promise<any> {
     const result: any[] = await this.prisma.todo.findMany({
       where: {
         author_id,
+        status: isActive,
       },
       include: {
         author: {
@@ -99,11 +100,11 @@ export class TodoService {
   }
 
   async updateTodoDto(id: string, updateTodoDto: UpdateTodoDto): Promise<Todo> {
-    const isExist = await this.prisma.todo.findUnique({ where: { id } });
+    const isExist: Todo = await this.prisma.todo.findUnique({ where: { id } });
 
     if (!isExist) throw new NotFoundException('Todo tidak ditemukan');
 
-    const result = await this.prisma.todo.update({
+    const result: Todo = await this.prisma.todo.update({
       where: {
         id,
       },
@@ -117,6 +118,27 @@ export class TodoService {
     this.message.setMessage('Berhasil Update Todo');
 
     return result;
+  }
+
+  async updateStatusTodo(
+    id: string,
+    updateStatusTodo: UpdateStatusTodoDto,
+  ): Promise<void> {
+    const isExist: Todo = await this.prisma.todo.findUnique({ where: { id } });
+
+    if (!isExist) throw new NotFoundException('Todo tidak ditemukan');
+
+    const result: Todo = await this.prisma.todo.update({
+      where: {
+        id,
+      },
+      data: {
+        status: updateStatusTodo.status,
+      },
+    });
+
+    if (!result) throw new BadRequestException('Gagal Update Status todo');
+    this.message.setMessage('Berhasil Update Status Todo');
   }
 
   async deleteToto(author_id: string, id: string): Promise<void> {

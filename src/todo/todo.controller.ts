@@ -13,7 +13,7 @@ import { JwtAuthGuard } from 'src/utils/guard/auth.guard';
 import { CreateTodoDto } from './dto/createTodo.dto';
 import { Todo } from '@prisma/client';
 import { JwtPayloadInterface } from 'src/auth/interface';
-import { UpdateTodoDto } from './dto/updateTodoDto';
+import { UpdateStatusTodoDto, UpdateTodoDto } from './dto/updateTodoDto';
 import { UserDecorator } from 'src/utils/decorator/User.decorator';
 
 @Controller('todo')
@@ -34,11 +34,18 @@ export class TodoController {
     return await this.todoService.getAllTodo();
   }
 
-  @Get('all-by-author')
-  async getAllTodoByAuthorHandler(
+  @Get('all-by-author/active')
+  async getAllTodoActiveByAuthorHandler(
     @UserDecorator() user: JwtPayloadInterface,
   ): Promise<Todo[]> {
-    return await this.todoService.getAllTodoByAuthor(user.id);
+    return await this.todoService.getAllTodoByAuthor(user.id, true);
+  }
+
+  @Get('all-by-author/archive')
+  async getAllTodoArchiveByAuthorHandler(
+    @UserDecorator() user: JwtPayloadInterface,
+  ): Promise<Todo[]> {
+    return await this.todoService.getAllTodoByAuthor(user.id, false);
   }
 
   @Get(':id')
@@ -52,6 +59,14 @@ export class TodoController {
     @Body() updateTodoDto: UpdateTodoDto,
   ): Promise<Todo> {
     return await this.todoService.updateTodoDto(id, updateTodoDto);
+  }
+
+  @Put('update/todo-status/:id')
+  async updateTodoActiveHandler(
+    @Param('id') id: string,
+    @Body() updateStatusTodoDto: UpdateStatusTodoDto,
+  ): Promise<void> {
+    await this.todoService.updateStatusTodo(id, updateStatusTodoDto);
   }
 
   @Delete(':id')

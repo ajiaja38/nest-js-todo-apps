@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateTodoDto {
   @IsNotEmpty()
@@ -12,4 +12,10 @@ export class UpdateTodoDto {
   @IsNotEmpty()
   @IsString()
   image: string;
+}
+
+export class UpdateStatusTodoDto {
+  @IsNotEmpty()
+  @IsBoolean()
+  status: boolean;
 }
